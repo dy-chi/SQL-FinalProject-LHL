@@ -177,3 +177,38 @@ CREATE TABLE visitor_session (
 	timeonsite INTERVAL
 	
 );
+
+
+-- create sessions table 
+
+CREATE TABLE visitor_session2 AS   
+	SELECT
+		visitid,
+		fullvisitorid,
+		channelgrouping,
+		pageviews,
+		date,
+		timeonsite::INTERVAL,
+		'all_sessions' as source
+	FROM public.all_sessions
+
+UNION 
+	SELECT
+		visitid,
+		fullvisitorid,
+		channelgrouping,
+		pageviews,
+		date,
+		timeonsite::INTERVAL,
+		'analytics_distinct' as source
+	FROM public.analytics_distinct
+
+
+--create primary key column
+ALTER TABLE public.visitor_session2
+ADD COLUMN visitor_sessions_day_id VARCHAR(34)
+--populate primary key column
+
+ALTER TABLE public.all_sessions
+ADD COLUMN visitor_sessions_day_id VARCHAR(34)
+
