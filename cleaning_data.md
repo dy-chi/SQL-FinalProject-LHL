@@ -1,6 +1,28 @@
 What issues will you address by cleaning the data?
 
 
+--Changing data types from TEXT
+
+--ID colums to varchar with respective max lengths
+--fullvisitor id is 16-19 *normally 19 digits and visitid is 10 digits long
+--would have to confirm wether any fullvisitorid id with less than 19 digits is an error
+
+ALTER TABLE public.all_sessions
+ALTER COLUMN fullvisitorid TYPE varchar(19) USING fullvisitorid::varchar(19),
+ALTER COLUMN visitid TYPE varchar(10) USING visitid::varchar(10);
+
+ALTER TABLE public.analytics_distinct
+ALTER COLUMN fullvisitorid TYPE varchar(19) USING fullvisitorid::varchar(19),
+ALTER COLUMN visitid TYPE varchar(10) USING visitid::varchar(10);
+
+
+--Alter datatype to date
+
+ALTER TABLE public.all_sessions
+ALTER COLUMN date TYPE date USING TO_DATE(date,'YYYYMMDD');
+
+ALTER TABLE public.all_sessions;
+ALTER COLUMN date TYPE date USING TO_DATE(date,'YYYYMMDD');
 
 
 
