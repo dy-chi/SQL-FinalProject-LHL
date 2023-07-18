@@ -1,5 +1,56 @@
 What issues will you address by cleaning the data?
 
+-- Investigate values where there are duplicates in visitid and if hey should be removed
+WITH cte_visitid_dup AS(SELECT visitid, count(*)
+FROM public.all_sessions
+GROUP BY visitid
+HAVING COUNT(visitid) > 1
+ORDER BY visitid)
+
+SELECT *
+FROM cte_visitid_dup cte
+LEFT JOIN public.all_sessions a_s USING(visitid)
+ORDER BY visitid
+
+
+
+-- duplicate values should not be removed, as they contain unqiue information, a true primary key must be found
+
+---All of the duplicate visitid should share the same date, timeonsite, page views, etc. this query will see if there are any incorrect values  
+
+
+
+WITH cte_visitid_dup AS(SELECT visitid, count(*)
+FROM public.all_sessions
+GROUP BY visitid
+HAVING COUNT(visitid) > 1
+ORDER BY visitid)
+
+SELECT visitid
+FROM cte_visitid_dup cte
+LEFT JOIN public.all_sessions a_s USING(visitid)
+GROUP BY visitid 
+HAVING COUNT (distinct fullvisitorid) > 1
+
+WITH cte_visitid_dup AS(SELECT visitid, count(*)
+FROM public.all_sessions
+GROUP BY visitid
+HAVING COUNT(visitid) > 1
+ORDER BY visitid)
+
+SELECT visitid, count( distinct date) as distinct_count_date, min(fullvisitorid) min_visitor_id, max(fullvisitorid) as max_visitor_id, count(distinct fullvisitorid) as distinct_count_visitor_id, 
+count(distinct timeonsite) as distinct_count_time_on_site, max(timeonsite) as max_timeonsite, max(date), min(date)
+FROM cte_visitid_dup cte
+LEFT JOIN public.all_sessions a_s USING(visitid)
+GROUP BY visitid 
+HAVING COUNT (distinct timeonsite) > 1
+
+--The result shows there a 
+--1) a handful of values with 2 fullvisitorids for one visitid, possibly switching accounts while on the same machine
+--2)One visitid with multiple dates, the dates are consecutive  so it was likely the case of a user being on the site across midnight
+-- If I create a primiary key that combines visit_id, visitor_id, and day (extracted from date), we will have useful primary key, because the analytics column also ---has these columns 
+
+
 
 --Changing data types from TEXT
 
