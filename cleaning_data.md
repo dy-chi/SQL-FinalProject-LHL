@@ -212,3 +212,9 @@ ADD COLUMN visitor_sessions_day_id VARCHAR(34)
 ALTER TABLE public.all_sessions
 ADD COLUMN visitor_sessions_day_id VARCHAR(34)
 
+-- add entity information to vistor session
+ALTER TABLE public.visitor_session2
+ADD COLUMN country TEXT,
+ADD COLUMN city TEXT,
+ADD COLUMN total_num_transactions integer,
+ADD COLUMN sum_transactions numeric;
