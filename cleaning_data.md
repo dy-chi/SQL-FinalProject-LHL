@@ -161,3 +161,19 @@ ISSUE 4: There are visitids that have a minimum visitnumber above 1 indicating t
 
 
 ISSUE  : There are some unit_price 0 values
+
+-- create a table that has entries for each distinct visit with a distinct visitor id for each day of the visit, called visitor_session, all data that is distinct ---to this tables primary key: visitor_session_id DISTINCT CONCAT(visitid,'_',  fullvisitorid,'_', EXTRACT(DAY from date)) will live here. 
+
+CREATE TABLE visitor_session (
+    visitor_session_day VARCHAR(31) PRIMARY KEY,
+    visitid VARCHAR(10) NOT NULL,
+    fullvisitorid VARCHAR(19) NOT NULL,
+	country TEXT,
+	city TEXT,
+	pageviews smallint,
+	sessionqualitydim TEXT,
+	date DATE NOT NULL,
+	visitstarttime TIMESTAMP,
+	timeonsite INTERVAL
+	
+);
