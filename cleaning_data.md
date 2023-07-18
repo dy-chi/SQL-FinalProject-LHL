@@ -218,3 +218,8 @@ ADD COLUMN country TEXT,
 ADD COLUMN city TEXT,
 ADD COLUMN total_num_transactions integer,
 ADD COLUMN sum_transactions numeric;
+
+UPDATE public.visitor_sessions_pk
+SET city = public.all_sessions.city
+FROM public.all_sessions
+WHERE public.visitor_sessions_pk.visitor_sessions_day_id = public.all_sessions.visitor_sessions_day_id
