@@ -223,3 +223,16 @@ UPDATE public.visitor_sessions_pk
 SET city = public.all_sessions.city
 FROM public.all_sessions
 WHERE public.visitor_sessions_pk.visitor_sessions_day_id = public.all_sessions.visitor_sessions_day_id
+
+
+DELETE FROM
+    public.visitor_sessions_pk a
+        USING public.visitor_sessions_pk b
+WHERE
+    a.visitor_sessions_day_id < b.visitor_sessions_day_id
+    AND a.visitid = b.visitid
+	AND a.date = b.date
+	AND a.fullvisitorid = b.fullvisitorid
+	AND a.pageviews = b.pageviews
+	AND a.timeonsite = b.timeonsite ;
+
