@@ -41,35 +41,54 @@ HAVING count(country) >= 1
 
 **Question 2: What is the average number of products ordered from visitors in each city and country?**
 
---We don't have enough data to answer this properly, as the number of orders with known product quantities is low
+--not all sales have a recorded country or city
+--country was no recorded at the time sale for analytics dataset, so country is assumed with a shared fullvisitorid (known to change countries)
 
-SQL Queries:
+SELECT vi.country, AVG(total_products_sold) ::numeric(10,2) as avg_product_sold, count(total_products_sold) total_sales_by_country
+FROM public.visitor_session_with_source vsws
+JOIN public.visitor_info6 vi USING(fullvisitorid)
+WHERE total_products_sold is not NULL
+	AND total_products_sold <> 0
+	AND vi.country is not NULL
+GROUP BY vi.country
+ORDER BY avg_product_sold DESC
+-- Spain has the highest average products sold, but 3.82 from the US is the only meaningful average because the sample size is large enough
+COUNTRY		AVG_PROD COUNT
+"Spain"		10.00	1
+"United States"	3.82	89
+"Colombia"	1.00	1
+"Finland"	1.00	1
+"France"	1.00	2
+"Argentina"	1.00	1
+"Ireland"	1.00	2
+"Mexico"	1.00	1
+"Switzerland"	1.00	2
+"India"	1.00	1
+"Canada"	1.00	3
 
-SELECT country, AVG(productquantity::integer)
-FROM public.transactions tr
-JOIN public.all_sessions alls USING(transactionid)
-WHERE country is not null 
-GROUP BY country 
-
-SELECT city, AVG(productquantity::integer)
-FROM public.transactions tr
-JOIN public.all_sessions alls USING(transactionid)
-WHERE country is not null 
-GROUP BY city 
-Answer:
-"Austin"	
-"Mountain View"	
-"Sunnyvale"	1.00000000000000000000
-"Sydney"	
-
-SELECT city, AVG(productquantity::integer)
-FROM public.transactions tr
-JOIN public.all_sessions alls USING(transactionid)
-WHERE country is not null 
-GROUP BY country 
-
-
-
+For cities, Sunvale has the highest average 
+COUNTRY		CITY		AVG_PROD COUNT
+"United States"	"Sunnyvale"	10.43	7
+"Spain"		"Madrid"	10.00	1
+"United States"	"Salem"	8.00	1
+"United States"	"Seattle"	4.00	2
+"United States"	"Atlanta"	4.00	1
+"United States"	"San Francisco"	2.40	10
+"United States"	"Houston"	2.00	2
+"United States"	"Chicago"	1.67	3
+"United States"	"New York"	1.36	11
+"United States"	"Mountain View"	1.35	17
+"United States"	"San Jose"	1.00	1
+"United States"	"Detroit"	1.00	2
+"Ireland"	"Dublin"	1.00	2
+"Switzerland"	"Zurich"	1.00	2
+"United States"	"(not set)"	1.00	2
+"United States"	"Ann Arbor"	1.00	2
+"United States"	"Columbus"	1.00	1
+"United States"	"Dallas"	1.00	2
+"India"		"Bengaluru"	1.00	1
+"United States"	"Los Angeles"	1.00	1
+"United States"	"Palo Alto"	1.00	3
 
 **Question 3: Is there any pattern in the types (product categories) of products ordered from visitors in each city and country?**
 
