@@ -3,12 +3,12 @@ Answer the following questions and provide the SQL queries used to find the answ
     
 **Question 1: Which cities and countries have the highest level of transaction revenues on the site?**
 
---Considering the column totoaltransactionrevenue is ambigious, we do not know over which data the totals are summing, I've opted to answer the question using only data where we have transactionids. Below I sum the transaction revenue with transactionids and use the country and city combination given at the row of the transaction, as opposed to using the latest country, city combination found in the visitor_info  table.
+--Considering the column totaltransactionrevenue is ambigious, we do not know over which data the totals are summing, I've opted to answer the question using only data where we have transactionids. Below I sum the transaction revenue with transactionids and use the country and city combination given at the row of the transaction, as opposed to using the latest country, city combination found in the visitor_info  table.
 
 
 Answer cities:
 
-"United States"  	"Sunnyvale"	849.24
+"United States"  "Sunnyvale"	849.24
 "Australia"	"Sydney"	358.00
 "United States"	"Austin"	35.78
 "United States"	"Mountain View"	8.98
@@ -36,13 +36,10 @@ JOIN public.all_sessions USING(transactionid)
 GROUP BY country
 HAVING count(country) >= 1
 
-
-
-
 **Question 2: What is the average number of products ordered from visitors in each city and country?**
 
---not all sales have a recorded country or city
---country was no recorded at the time sale for analytics dataset, so country is assumed with a shared fullvisitorid (known to change countries)
+--Things to note: for all_sessions, not all sales have a recorded country or city, this may bias the data if only certain countries are not recorded 
+--For analytics table, no city or country columns are recorded, so country is assumed to be the same as that in the visitor_info column which only has data from all_sessions, so only visitors with data in both all_sessions and analytics will have country or city data and it may not be up to date.
 
 SELECT vi.country, AVG(total_products_sold) ::numeric(10,2) as avg_product_sold, count(total_products_sold) total_sales_by_country
 FROM public.visitor_session_with_source vsws
@@ -92,7 +89,7 @@ COUNTRY		CITY		AVG_PROD COUNT
 
 **Question 3: Is there any pattern in the types (product categories) of products ordered from visitors in each city and country?**
 
--- not enought data to say, the data from all sessions is mostly showing data of people navigating a web page rather than orders. There are only 9 orders made, not enough to show patterns, 
+-- not enought data to say, the data from all sessions is mostly showing data of people navigating the web page rather than orders. There are only 9 orders made with high quality data (transactionid etc), not enough to show patterns in my view, perhaps with further investigationing I might be able to link productskus to sales in analytics  
 
 SQL Queries:
 
@@ -125,9 +122,17 @@ SQL Queries:
 
 Answer:
 
-There are many products without a sku in the analytics csv. So I'm not sure how they are meant to be connected
+--There are many products without a sku in the analytics csv. So I'm not sure how, or if  they are meant to be connected. When looking at only transactions 
+-- in the all_sessions csv there are only 9 values with transaction ids so I would say the data returned for top selling product is pretty useless. But it looks to --be resuable bags, cheap products with many units per order. Or the "Nest® Cam Indoor Security Camera - USA" if we are talking about sale price and number of 
+--distinct transactions 
 
+SELECT  country, productsku, array_agg(v2productname), SUM(productquantity::integer)
+FROM public.all_sessions alls
+JOIN public.transactions USING(transactionid)
 
+GROUP BY country, productsku
+
+ORDER BY SUM DESC
 
 
 
