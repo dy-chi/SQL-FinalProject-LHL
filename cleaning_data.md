@@ -1,5 +1,25 @@
 What issues will you address by cleaning the data?
 
+In the process of cleaning the data, I want to identify the entities that are described within the database, assign to them a primary key and seperate table.
+
+List of Entities
+- visitor 
+- user page visit (must combine visitor and visitid)
+- 	time_on_page
+- 	pagename etc
+- page
+- user site visit
+- 	channel referal 
+- transactions
+- products
+
+- "raw tables" analytics, all_sessions
+- 
+
+
+
+
+
 -- Investigate values where there are duplicates in visitid and if hey should be removed
 WITH cte_visitid_dup AS(SELECT visitid, count(*)
 FROM public.all_sessions
