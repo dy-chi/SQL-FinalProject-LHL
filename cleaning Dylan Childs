@@ -186,6 +186,7 @@ SELECT *
 FROM public.visitor_sessions_pk
 WHERE country is NULL and city is not null 
 	OR  city is NULL and country is not null;
+----------------------------------------------------------------------------------------------
 --GOAL 4 Create a table with a transactions entity holding all unique transactions
 -- into the table will be Into the transactions table will be transactionid, transactionrevenue, visitor_sessions_day_id, date, currencycode
 --First each of these columns must be cleaned  in the  all_sessions table
@@ -198,5 +199,146 @@ SET transactionrevenue = COALESCE(transactionrevenue, totaltransactionrevenue::t
 	WHERE pagepathlevel1 = '/ordercompleted.html' 
 		AND transactions = '1'
 		AND transactionid is not NULL;
+--Create Table Transactions
+CREATE TABLE transactions
+
+(transactionid VARCHAR(16),
+transactionrevenue numeric,
+visitor_sessions_day_id VARCHAR(34),
+date date,
+currencycode VARCHAR(5));
+
+INSERT INTO transactions 
+	(
+	transactionid,
+	transactionrevenue,
+	visitor_sessions_day_id,
+	date,
+	currencycode)
+SELECT 
+	transactionid,
+	transactionrevenue::numeric,
+	visitor_sessions_day_id,
+	date,
+	currencycode
+FROM public.all_sessions
+WHERE transactionid IS NOT NULL;
+
+---------------
+--GOAL 5 Create a table for the information on visitors 
+--Step 1 Look at relevant  columns to investigate 
+SELECT COUNT(DISTINCT date), array_agg(country),  COUNT(DISTINCT country) as d_count_country, array_agg(city), COUNT(DISTINCT city) as dcount_city
+FROM public.all_sessions
+
+GROUP BY fullvisitorid
+ORDER BY COUNT(DISTINCT country) DESC;
+
+-- Step 2 Cleaning steps country, city
+---Coalesce empty values NULL
+---take most recent location for the visitor table
+UPDATE public.all_sessions
+SET city = COALESCE(
+				NULLIF(city, 'not available in demo dataset'),
+				NULLIF(city, '(not set)')
+				)
+WHERE city = 'not available in demo dataset' OR city = '(not set)' ;
+
+--Step 3 
+
+--Create Table visitor info 
+
+CREATE TABLE visitor_info AS
+	WITH cte_max_date 
+		AS(SELECT 
+			fullvisitorid, 
+			max(date) as latest_date,
+		   	max(visitid::integer) as latest_visitid,
+			COUNT(DISTINCT visitid) as visit_count,
+			SUM(time_on_page) as total_time_on_pages
+		FROM public.all_sessions
+		GROUP BY  fullvisitorid)
+
+	SELECT DISTINCT
+			alls.fullvisitorid,
+			alls.country,
+			alls.city,alls.totaltransactionrevenue,
+			alls.timeonsite,
+			alls.date,
+			total_time_on_pages,
+			visit_count
+		FROM public.all_sessions alls
+		JOIN cte_max_date cte ON alls.fullvisitorid = cte.fullvisitorid 
+								AND alls.date = cte.latest_date
+								AND alls.visitid::integer = cte.latest_visitid
+
+ALTER TABLE public.visitor_info
+ADD CONSTRAINT pk_constraint_fullvistorid PRIMARY KEY (fullvisitorid);
+
+-----------------
+-- GOAL 6 Populate public.visitor_session_with_source table with transactions data
+--Step 1
+WITH cte_analytics_distinct 
+	AS(
+
+	SELECT  
+		MAX(visitid) as visitid, 
+		MAX(fullvisitorid) as fullvisitorid,
+		MAX(channelgrouping) as channelgrouping,
+		MAX(pageviews) as pageviews,
+		MAX(date) as date,
+		MAX(timeonsite) as timeonsite,
+		'analytics_distinct' as source,
+		visitor_sessions_day_id,
+		'replace' as country,
+		'replace' as city,
+		COUNT(revenue) as total_num_transactions,
+		SUM(((revenue::numeric)/1000000)::numeric(10,2)) as sum_transactions 
+	FROM public.analytics_distinct		
+	WHERE revenue is not null
+	GROUP BY visitor_sessions_day_id
+	)
+UPDATE public.visitor_session_with_source vs
+	SET sum_transactions = cte.sum_transactions,
+	total_num_transactions =cte.total_num_transactions
+	
+	FROM cte_analytics_distinct cte
+	WHERE 	vs.visitor_sessions_day_id = cte.visitor_sessions_day_id
+			AND vs.source = cte.source;
+
+--Step 3 add total products sold column 
+
+ALTER TABLE public.visitor_session_with_source
+ADD COLUMN total_products_sold INTEGER;
+
+WITH cte_analytics_distinct
+	AS(
+
+	SELECT  
+		MAX(visitid) as visitid, 
+		MAX(fullvisitorid) as fullvisitorid,
+		MAX(channelgrouping) as channelgrouping,
+		MAX(pageviews) as pageviews,
+		MAX(date) as date,
+		MAX(timeonsite) as timeonsite,
+		'analytics_distinct' as source,
+		visitor_sessions_day_id,
+		'replace' as country,
+		'replace' as city,
+		SUM(units_sold::integer)::integer as units_sold,
+		COUNT(revenue) as total_num_transactions,
+		SUM(((revenue::numeric)/1000000)::numeric(10,2)) as sum_transactions 
+	FROM public.analytics_distinct		
+	WHERE revenue is not null
+	GROUP BY visitor_sessions_day_id
+	)
+UPDATE public.visitor_session_with_source AS vsws
+SET total_products_sold = (
+  SELECT COALESCE(SUM(ad.units_sold), 0) + COALESCE(SUM(alls.productquantity::integer  ), 0)
+  FROM cte_analytics_distinct AS ad
+  FULL OUTER JOIN all_sessions AS alls ON ad.visitor_sessions_day_id = alls.visitor_sessions_day_id
+  WHERE  alls.transactionid IS NOT NULL AND 
+		vsws.visitor_sessions_day_id = ad.visitor_sessions_day_id 
+		OR vsws.visitor_sessions_day_id = alls.visitor_sessions_day_id)
+
 
 
