@@ -2,7 +2,7 @@
 
 --  Goal 1: Identify possible entities, dimensions, facts and relationships (if any) between tables
 
--- List of Entities  unique identifiers, facts
+-- List of Entities  unique identifiers, facts, found after investigating the tables 
 -- - fullvisitorid -> visitor 
 
 --   visitid -> likely to be a page visit, time_on_page 
