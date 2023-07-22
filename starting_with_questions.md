@@ -123,8 +123,11 @@ Answer:
 SQL Queries:
 
 
-
 Answer:
+
+There are many products without a sku in the analytics csv. So I'm not sure how they are meant to be connected
+
+
 
 
 
