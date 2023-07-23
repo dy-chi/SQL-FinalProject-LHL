@@ -53,8 +53,8 @@ HAVING COUNT(DISTINCT fullvisitorid) > 1
 ORDER BY duplicate_full_vis_id DESC;
 
 -- Step 4: Investigate duplicate rows with the same visitnumber and visitid.
-
 -- Show visitids with multiple visitnumbers.
+
 SELECT visitid, array_agg(visitnumber) AS visitnumber
 FROM public.all_sessions
 GROUP BY visitid;
