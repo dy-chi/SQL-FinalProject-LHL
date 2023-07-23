@@ -141,10 +141,26 @@ ORDER BY SUM DESC
 **Question 5: Can we summarize the impact of revenue generated from each city/country?**
 
 SQL Queries:
+SELECT vi.country, SUM(sum_transactions) ::numeric(10,2) as sum_sales_by_country
+FROM public.visitor_sessions_pk vspk
+JOIN public.visitor_info vi USING(fullvisitorid)
+WHERE  sum_transactions is not NULL
+	AND sum_transactions <> 0
+	AND vi.country is not NULL
+GROUP BY vi.country
+ORDER BY sum_sales_by_country DESC
 
 
+Answer: The vast majoirty of revenue is from the USA with minor ammounts from other countries. However there is lots of missing country data from the analytics column
 
-Answer:
+"United States"	58566.35
+"Canada"	447.48
+"Australia"	358.00
+"Germany"	69.98
+"Japan"	30.88
+"Switzerland"	16.99
+
+
 
 
 
