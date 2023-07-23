@@ -275,7 +275,7 @@ ALTER TABLE public.visitor_info
 ADD CONSTRAINT pk_constraint_fullvistorid PRIMARY KEY (fullvisitorid);
 
 -----------------
--- GOAL 6 Populate public.visitor_session_with_source and ublic.visitor_session_pk  table with transactions data
+-- GOAL 6 Populate public.visitor_session_with_source and public.visitor_session_pk  table with transactions data
 --Step 1
 WITH cte_analytics_distinct 
 	AS(
@@ -304,41 +304,46 @@ UPDATE public.visitor_session_with_source vs
 	FROM cte_analytics_distinct cte
 	WHERE 	vs.visitor_sessions_day_id = cte.visitor_sessions_day_id
 			AND vs.source = cte.source;
+-----------------------------------------
+CREATE TEMPORARY TABLE temp_table2 AS
+WITH cte_analytics_distinct AS (
+    SELECT  
+        MAX(visitid) as visitid, 
+        MAX(fullvisitorid) as fullvisitorid,
+        MAX(channelgrouping) as channelgrouping,
+        MAX(pageviews) as pageviews,
+        MAX(date) as date,
+        MAX(timeonsite) as timeonsite,
+        'analytics_distinct' as source,
+        visitor_sessions_day_id,
+        'replace' as country,
+        'replace' as city,
+        COUNT(revenue) as total_num_transactions,
+        SUM(((revenue::numeric)/1000000)::numeric(10,2)) as sum_transactions 
+    FROM public.analytics_distinct		
+    WHERE revenue is not null
+    GROUP BY visitor_sessions_day_id
+),
+cte_groupby AS (
+    SELECT visitor_sessions_day_id, 
+        SUM(sum_transactions) as sum_transactions, 
+        SUM(total_num_transactions) as total_num_transactions
+    FROM cte_analytics_distinct
+    GROUP BY visitor_sessions_day_id
+			)
 
-WITH cte_analytics_distinct 
-	AS(
+	SELECT visitor_sessions_day_id, sum_transactions, total_num_transactions
+	FROM cte_groupby
+	UNION 
+	SELECT visitor_sessions_day_id, transactionrevenue/1000000 as sum_transactions, 1 as total_num_transactions
+	FROM public.transactions
+	ORDER BY sum_transactions DESC
 
-	SELECT  
-		MAX(visitid) as visitid, 
-		MAX(fullvisitorid) as fullvisitorid,
-		MAX(channelgrouping) as channelgrouping,
-		MAX(pageviews) as pageviews,
-		MAX(date) as date,
-		MAX(timeonsite) as timeonsite,
-		'analytics_distinct' as source,
-		visitor_sessions_day_id,
-		'replace' as country,
-		'replace' as city,
-		COUNT(revenue) as total_num_transactions,
-		SUM(((revenue::numeric)/1000000)::numeric(10,2)) as sum_transactions 
-	FROM public.analytics_distinct		
-	WHERE revenue is not null
-	GROUP BY visitor_sessions_day_id
-	),
-	
-	
-	cte_groupby AS(
-		SELECT visitor_sessions_day_id, SUM(sum_transactions) as sum_transactions, SUM(total_num_transactions) as total_num_transactions
-		FROM cte_analytics_distinct
-		GROUP BY visitor_sessions_day_id
-	) 
 UPDATE public.visitor_sessions_pk vspk
-	SET sum_transactions = cte.sum_transactions,
-	total_num_transactions =cte.total_num_transactions
-	
-	FROM cte_groupby cte
-	
-	WHERE 	vspk.visitor_sessions_day_id = cte.visitor_sessions_day_id
+SET sum_transactions = tt.sum_transactions,
+    total_num_transactions = tt.total_num_transactions
+FROM temp_table2 tt
+WHERE vspk.visitor_sessions_day_id = tt.visitor_sessions_day_id;
 
 --Step 3 add total products sold column 
 
