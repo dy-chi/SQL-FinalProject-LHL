@@ -140,16 +140,55 @@ Answer: There is a large increase in non-zero timeonsite when channelgrouping is
 
 
 
-Question 4: 
+Question 4: How much has the overall time spent on site changed over time?
 
 SQL Queries:
+SELECT 
+	TO_CHAR(date, 'YYMM') AS YYMM_yearmonth, 
+	SUM(timeonsite) as sum_timeonsite,
+	(EXTRACT(hours FROM SUM(timeonsite))/24)::numeric(10,2) as sum_timeonsite_days
 
-Answer:
+FROM
+	public.visitor_sessions_pk
+GROUP BY TO_CHAR(date, 'YYMM')
+
+FROM
+	public.visitor_sessions_pk
+GROUP BY TO_CHAR(date, 'YYMM')
+Answer: There is a huge increase in the overall time spent on site in MAY-JULY 2017, from a background of 54 hours to 
+This might be due to an error or more likey the extent of the data in the csvs we were given, this was found to be the case
+
+SELECT MAX(date), MIN(date)
+FROM public.analytics_distinct
 
 
 
-Question 5: 
+Question 5: In there any improvment in sales over the weekend?
 
 SQL Queries:
+CREATE OR REPLACE FUNCTION is_weekend(date_val date)
+RETURNS boolean AS
+$$
+BEGIN
+    RETURN EXTRACT(ISODOW FROM date_val) IN (6, 7); -- 6 is Saturday, 7 is Sunday in ISO week numbering
+END;
+$$
+LANGUAGE plpgsql;
 
-Answer:
+-- Main Query: Calculate the average of sum_transactions for weekends and weekdays
+
+SELECT 
+    is_weekend(date) AS is_weekend, -- Check if the date is a weekend (Saturday or Sunday)
+    AVG(sum_transactions)::numeric(10,2) -- Calculate the average of sum_transactions and round to 2 decimal places
+FROM 
+    public.visitor_sessions_pk
+WHERE 
+    date BETWEEN '2017-05-01' AND '2017-08-01' -- Filter data for dates between May 1, 2017, and August 1, 2017
+GROUP BY 
+    is_weekend(date); -- Group the results by is_weekend to separate weekends and weekdays
+
+
+Answer: There is a modest increase in sales revenue during the weekdays compared to the weekend  
+is_weekend, 		Avg sum_transaction_by_session 
+false			174.81
+true			153.66
