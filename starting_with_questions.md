@@ -19,36 +19,83 @@ Answer Countries
 "Australia"	358.00	
 
 
-SELECT country, city, 
-	(SUM(tr.transactionrevenue)/1000000) ::numeric(10,2) as sum_transactions,
-	COUNT( (city, country)) as num_transactions 
-FROM public.transactions tr
-JOIN public.all_sessions USING(transactionid)
-GROUP BY country, city
-HAVING count(city) >= 1
-ORDER BY sum_transactions DESC
+--Query for Countries
+SELECT
+    country,
+    city,
+    (SUM(tr.transactionrevenue) / 1000000) :: numeric(10, 2) AS sum_transactions,
+    COUNT((city, country)) AS num_transactions
+FROM
+    public.transactions tr
+JOIN
+    public.all_sessions USING (transactionid)
+GROUP BY
+    country,
+    city
+HAVING
+    count(city) >= 1
+ORDER BY
+    sum_transactions DESC;
 
-SELECT country, 
-	(SUM(tr.transactionrevenue)/1000000) ::numeric(10,2) as sum_transactions,
-	COUNT((country)) as num_transactions 
-FROM public.transactions tr
-JOIN public.all_sessions USING(transactionid)
-GROUP BY country
-HAVING count(country) >= 1
+--SQL Query for Countries:
+SELECT
+    country,
+    (SUM(tr.transactionrevenue) / 1000000) :: numeric(10, 2) AS sum_transactions,
+    COUNT((country)) AS num_transactions
+FROM
+    public.transactions tr
+JOIN
+    public.all_sessions USING (transactionid)
+GROUP BY
+    country
+HAVING
+    count(country) >= 1;
 
 **Question 2: What is the average number of products ordered from visitors in each city and country?**
 
 --Things to note: for all_sessions, not all sales have a recorded country or city, this may bias the data if only certain countries are not recorded 
 --For analytics table, no city or country columns are recorded, so country is assumed to be the same as that in the visitor_info column which only has data from all_sessions, so only visitors with data in both all_sessions and analytics will have country or city data and it may not be up to date.
 
-SELECT vi.country, AVG(total_products_sold) ::numeric(10,2) as avg_product_sold, count(total_products_sold) total_sales_by_country
-FROM public.visitor_session_with_source vsws
-JOIN public.visitor_info6 vi USING(fullvisitorid)
-WHERE total_products_sold is not NULL
-	AND total_products_sold <> 0
-	AND vi.country is not NULL
-GROUP BY vi.country
-ORDER BY avg_product_sold DESC
+-- Query for Countries:
+SELECT
+    vi.country,
+    AVG(total_products_sold) :: numeric(10, 2) AS avg_product_sold,
+    COUNT(total_products_sold) total_sales_by_country
+FROM
+    public.visitor_session_with_source vsws
+JOIN
+    public.visitor_info6 vi USING (fullvisitorid)
+WHERE
+    total_products_sold IS NOT NULL
+    AND total_products_sold <> 0
+    AND vi.country IS NOT NULL
+GROUP BY
+    vi.country
+ORDER BY
+    avg_product_sold DESC;
+
+-- Query for Cities:
+SELECT
+    vi.country,
+    vi.city,
+    AVG(total_products_sold) :: numeric(10, 2) AS avg_product_sold,
+    COUNT(total_products_sold) total_sales_by_city
+FROM
+    public.visitor_session_with_source vsws
+JOIN
+    public.visitor_info6 vi USING (fullvisitorid)
+WHERE
+    total_products_sold IS NOT NULL
+    AND total_products_sold <> 0
+    AND vi.country IS NOT NULL
+    AND vi.city IS NOT NULL
+GROUP BY
+    vi.country,
+    vi.city
+ORDER BY
+    avg_product_sold DESC;
+
+    
 -- Spain has the highest average products sold, but 3.82 from the US is the only meaningful average because the sample size is large enough
 COUNTRY		AVG_PROD COUNT
 "Spain"		10.00	1
@@ -63,7 +110,7 @@ COUNTRY		AVG_PROD COUNT
 "India"	1.00	1
 "Canada"	1.00	3
 
-For cities, Sunvale has the highest average 
+--For cities, Sunvale has the highest average 
 COUNTRY		CITY		AVG_PROD COUNT
 "United States"	"Sunnyvale"	10.43	7
 "Spain"		"Madrid"	10.00	1
@@ -89,13 +136,24 @@ COUNTRY		CITY		AVG_PROD COUNT
 
 **Question 3: Is there any pattern in the types (product categories) of products ordered from visitors in each city and country?**
 
--- not enought data to say, the data from all sessions is mostly showing data of people navigating the web page rather than orders. There are only 9 orders made with high quality data (transactionid etc), not enough to show patterns in my view, perhaps with further investigationing I might be able to link productskus to sales in analytics  
+-- not enough data to say, the data from all sessions is mostly showing data of people navigating the web page rather than orders. There are only 9 orders made with high quality data (transactionid etc), not enough to show patterns in my view, perhaps with further investigationing I might be able to link productskus to sales in analytics. Most of the orders with transaction ids are ordered from the US
 
-SQL Queries:
+--SQL Queries:
 
-SELECT  v2productname, alls.productsku, alls.country, alls.city
-FROM public.all_sessions alls
-JOIN public.transactions USING(transactionid)
+SELECT
+    country,
+    productsku,
+    array_agg(v2productname),
+    SUM(productquantity::integer)
+FROM
+    public.all_sessions alls
+JOIN
+    public.transactions USING (transactionid)
+GROUP BY
+    country,
+    productsku
+ORDER BY
+    SUM DESC;
 
 
 Answer:
@@ -141,14 +199,22 @@ ORDER BY SUM DESC
 **Question 5: Can we summarize the impact of revenue generated from each city/country?**
 
 SQL Queries:
-SELECT vi.country, SUM(sum_transactions) ::numeric(10,2) as sum_sales_by_country
-FROM public.visitor_sessions_pk vspk
-JOIN public.visitor_info vi USING(fullvisitorid)
-WHERE  sum_transactions is not NULL
-	AND sum_transactions <> 0
-	AND vi.country is not NULL
-GROUP BY vi.country
-ORDER BY sum_sales_by_country DESC
+
+SELECT
+    vi.country,
+    SUM(sum_transactions) :: numeric(10, 2) AS sum_sales_by_country
+FROM
+    public.visitor_sessions_pk vspk
+JOIN
+    public.visitor_info vi USING (fullvisitorid)
+WHERE
+    sum_transactions IS NOT NULL
+    AND sum_transactions <> 0
+    AND vi.country IS NOT NULL
+GROUP BY
+    vi.country
+ORDER BY
+    sum_sales_by_country DESC
 
 
 Answer: The vast majoirty of revenue is from the USA with minor ammounts from other countries. However there is lots of missing country data from the analytics column
