@@ -45,14 +45,14 @@ The main objectives of this project are as follows:
 
 The project's results include various insights gained from the data analysis, such as:
 
-    Determining the total number of unique visitors (130,345) based on their fullVisitorID.
-    Analyzing the total number of unique visitors by channel grouping, revealing the most common referring sites.
-    Identifying unique products viewed by each visitor and finding the visitor who viewed the most products.
-    Computing the percentage of visitors making a purchase during their session on the website (3.96%).
-    Analyzing the average time spent on specific page types and identifying the most common pages visitors spend time on.
-    Exploring referral traffic with zero time on site and comparing it to the general trend of referrals.
-    Analyzing overall time spent on the site over time to identify changes in user behavior across different periods.
-    Examining sales improvement over the weekend compared to weekdays.
+- Determining the total number of unique visitors (130,345) based on their fullVisitorID.
+- Analyzing the total number of unique visitors by channel grouping, revealing the most common referring sites.
+- Identifying unique products viewed by each visitor and finding the visitor who viewed the most products.
+- Computing the percentage of visitors making a purchase during their session on the website (3.96%).
+- Analyzing the average time spent on specific page types and identifying the most common pages visitors spend time on.
+- Exploring referral traffic with zero time on site and comparing it to the general trend of referrals.
+- Analyzing overall time spent on the site over time to identify changes in user behavior across different periods.
+- Examining sales improvement over the weekend compared to weekdays.
 
 ##Challenges
 
