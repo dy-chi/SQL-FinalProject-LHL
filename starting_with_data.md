@@ -52,11 +52,20 @@ SELECT
 FROM
     cte_sales;
 
-Question 1: What is the average time a user spends on a page
+Question 1: What is the average time a user spends on a certain type of page
 
 SQL Queries:
+SELECT pagepathlevel1, AVG(time_on_page) 
 
-Answer: 
+FROM public.all_sessions
+GROUP BY pagepathlevel1
+ORDER BY avg DESC
+
+Answer: Most time is spend on the review order, payment and basket pages. 
+
+"/revieworder.html"	"00:08:05.2"
+"/payment.html"	"00:07:55.769231"
+"/basket.html"	"00:06:58"
 
 
 
