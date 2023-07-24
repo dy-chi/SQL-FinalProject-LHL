@@ -12,11 +12,28 @@ Cleaning Data
  -   find duplicates within tables and between tables
  - Data Conversion. Convert important columns to approriate datatypes to save time when querying and increase performace
  - Creating new tables with unique identifiers similar to the northwinds demo data set
+Answering the Questions Creating New Questions
+-  
 
 
 ## Process
 
+**Identify Entities and Relationships**:
+        Investigate the tables to identify unique identifiers, facts, and potential entities.
+        Analyze visitid and fullvisitorid for duplicates and investigate further.
+  **Alter Data Types**:
+ - Change data types for certain columns, such as converting text to VARCHAR and converting date columns to DATE.
+**Transform Data**
+- Change the time column to time_on_page (minor assumption) from milliseconds to seconds (appropriate for interval datatype) 
+ **Create New Tables for Distinct Rows:**
+-   Create new tables ('visitor_session' and 'visitor_session_source') to store distinct rows and related information.
 
+**Create a Transactions Table:**
+        Clean and update data in the 'all_sessions' table to populate the 'transactions' table with relevant transaction information.
+ **Create a Visitor Info Table:**
+        Clean and update data in the 'all_sessions' table to populate the 'visitor_info' table with visitor information.Populate 'visitor_session_with_source' and 'visitor_session_pk' Tables with Transaction Data:
+        Populate specific tables ('visitor_session_with_source' and 'visitor_session_pk') with transaction data from 'analytics_distinct' and 'transactions' tables.
+   
 ## Results
 
  --Total Number of Unique Visitors: Determined that there are 130,345 unique visitors based on their fullVisitorID.
@@ -38,8 +55,13 @@ Cleaning Data
 --Improvement in Sales Over the Weekend: Examined whether there was an improvement in sales revenue over the weekend compared to weekdays. The data showed that there was a modest increase in sales revenue on weekdays compared to weekends.
 
 ## Challenges 
-I found the documentation process difficult as in pressing forward and answering questions, I would notice something i missed in the cleaning step and have to return to that process. It was also intimi 
+I found the documentation process difficult. In pressing forward and answering questions, I would notice something I missed in the cleaning step and have to return to that process.
+Keeping assumptions about the data straight, and keeping what transformations I have done in front of mind. 
 
 
 ## Future Goals
-(what would you do if you had more time?)
+-Look into creating a new id called productsaleid. that only included information of a productsku when it sold, for what price etc, what time etc. This would be seperate from the transactionid which would include information on the total sale.
+-Look into if there is a way to link productsku with the analytics csv
+- Investigate further what channel referral means exactly
+
+
