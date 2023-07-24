@@ -12,20 +12,45 @@ FROM public.visitor_sessions_pk
 GROUP BY channelgrouping
 ORDER BY unique_visits_by_site DESC
 
---The visitor who viewed the most products was, with 10 
-SELECT fullvisitorid, COUNT(DISTINCT productsku)
-FROM public.all_sessions
-GROUP BY fullvisitorid
-ORDER BY count DESC
--- Only 0.06% of unqiue visitor sessions included a sale. Which seems very low. 
-WITH cte_sales_by_vis_sesh AS(
-			SELECT visitor_sessions_day_id, COUNT(transactionid) as sales_count
-			FROM public.all_sessions
-			GROUP BY visitor_sessions_day_id
-			ORDER BY sales_count  DESC
-	)
-SELECT SUM(CASE WHEN sales_count <> 0 THEN 1 ELSE 0 END), COUNT(*), ((SUM(CASE WHEN sales_count <> 0 THEN 1 ELSE 0 END)::numeric/COUNT(*)::numeric)*100)::numeric (10,2)
-FROM cte_sales_by_vis_sesh
+--The visitor who viewed the most products was, with 10
+
+	WITH cte_visitor AS(
+	SELECT fullvisitorid
+	FROM public.visitor_sessions_pk
+	GROUP BY fullvisitorid)
+
+SELECT 
+	fullvisitorid,
+	COUNT(DISTINCT productsku ) as num_distinct_prods
+FROM
+	public.all_sessions alls
+
+JOIN 
+	cte_visitor
+	USING(fullvisitorid)
+GROUP BY 
+	fullvisitorid
+ORDER BY 
+	num_distinct_prods DESC
+	
+
+
+-- Only 3.96% of  visitor sessions included a sale. Which seems low but perhaps normal for this website
+WITH cte_sales AS (
+    SELECT
+        visitor_sessions_day_id,
+        SUM(total_num_transactions) AS sales_count
+    FROM
+        public.visitor_sessions_pk
+    GROUP BY
+        visitor_sessions_day_id
+)
+SELECT
+    SUM(CASE WHEN sales_count IS NOT NULL THEN 1 ELSE 0 END) AS sessions_wsales_count,
+    COUNT(*) AS total_sessions_count,
+    ((100*SUM(CASE WHEN sales_count IS NOT NULL THEN 1 ELSE 0 END)::numeric) / COUNT(*)::numeric)::numeric(10,2) AS purchase_per_vis_percent
+FROM
+    cte_sales;
 
 Question 1: What is the average time a user spends on a page
 
@@ -36,33 +61,80 @@ Answer:
 
 
 Question 2: what type of page do users spend the most time on
-
+-- Common Table Expression (CTE) to get unique visitor sessions based on fullvisitorid and visitid
 SQL Queries:
+	WITH cte_visitor AS(
+	SELECT fullvisitorid,visitid
+	FROM public.visitor_sessions_pk
+	GROUP BY fullvisitorid,visitid)
 
-Answer:
+-- Main Query: Calculate the cumulative time spent on each page (pagetitle) by visitors from analytics and all_sessions sources
+SELECT 
 
+	pagetitle,
+	SUM(time_on_page) as time_on_page, -- Cumulative time on page over the same visitorid
+	pagepathlevel1
+FROM
+	public.all_sessions alls
+
+JOIN 
+	cte_visitor cte
+	USING(fullvisitorid)
+WHERE LENGTH(pagetitle) < 200 -- Filter out results with pagetitles longer than 200 characters, as they are questionable and can harm readability
+
+GROUP BY 
+	pagetitle,pagepathlevel1
+	
+ORDER BY time_on_page DESC
+
+Answer: Shop by brand from the youtube or google path to the Google Merchandise Store is the webpage users spend the most time on 
+
+"YouTube | Shop by Brand | Google Merchandise Store"	"31:50:22"	"/google+redesign/"
+"Google | Shop by Brand | Google Merchandise Store"	"29:52:14"	"/google+redesign/"
+"Men's T-Shirts | Apparel | Google Merchandise Store"	"28:54:58"	"/google+redesign/"
+"Store search results"	"23:57:19"	"/asearch.html"
+"Men's Outerwear | Apparel | Google Merchandise Store"	"22:51:01"	"/google+redesign/"
+"Accessories | Google Merchandise Store"	"22:37:36"	"/google+redesign/"
+"Electronics | Google Merchandise Store"	"21:07:29"	"/google+redesign/"
+"Apparel | Google Merchandise Store"	"18:39:15"	"/google+redesign/"
 
 
 Question 3: what is the most common referral for users that stay on the site for 0 seconds, is signficant difference from the general trend of referrals? 
 
 SQL Queries:
-SELECT 
-    channelgrouping, 
-    SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END) as cg_count_time0,
+-- Main Query: Calculate statistics related to time spent on each channel grouping
+
+SELECT
+    channelgrouping, -- The name of the channel grouping
+    SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END) as cg_count_time0, -- Count of sessions with time spent = 0
     (
         SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END)
         / (SELECT COUNT(*) as total_rows FROM public.visitor_sessions_pk)::numeric(10,2) * 100
-    )::numeric(10,2) as cg_count_time0_percent,		
-    COUNT(timeonsite)  as cg_count,
+    )::numeric(10,2) as cg_count_time0_percent, -- Percentage of sessions with time spent = 0
+
+    COUNT(timeonsite) as cg_count, -- Total count of sessions in the channel grouping
     (
         COUNT(timeonsite)
         / (SELECT COUNT(*) as total_rows FROM public.visitor_sessions_pk)::numeric(10,2) * 100
-    )::numeric(10,2) as cg_count_percent
+    )::numeric(10,2) as cg_count_percent -- Percentage of total sessions in the channel grouping
 FROM public.visitor_sessions_pk
+
+-- Group the results by channel grouping
 GROUP BY channelgrouping
+
+-- Order the results by the count of sessions with time spent = 0 in descending order
 ORDER BY cg_count_time0 DESC;
 
-Answer: There is a large increase in non-zero timeonsite when channelgrouping is a referral. FROM only  4.4% of sessions with refferal spent 0 time of site, this is a large decrease from  17.%  all traffic being a referral.
+
+Answer: There is a large increase in non-zero timeonsite when channelgrouping is a referral. FROM only  1.4% of sessions with referral spent 0 time of site, whereas 20% of visits with organic search spent 0 time on the site. Maybe this is from web scrappers? 
+
+"Organic Search"	32967	20.41	82634	51.16
+"Direct"	8702	5.39	28116	17.41
+"Social"	7080	4.38	11810	7.31
+"Referral"	2276	1.41	30683	19.00
+"Paid Search"	474	0.29	5081	3.15
+"Display"	299	0.19	1269	0.79
+"Affiliates"	105	0.07	1912	1.18
 
 
 
