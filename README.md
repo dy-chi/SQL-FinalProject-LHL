@@ -1,7 +1,7 @@
 # Final-Project-Transforming-and-Analyzing-Data-with-SQL
 
 
-##Project Goals
+## Project Goals
 
 The main objectives of this project are as follows:
 
@@ -17,7 +17,7 @@ The main objectives of this project are as follows:
 
     Answering specific questions and formulating new ones based on the data analysis.
 
-##Process
+## Process
 
     Identify Entities and Relationships:
         Investigate the tables to identify unique identifiers, facts, and potential entities.
@@ -41,7 +41,7 @@ The main objectives of this project are as follows:
     Populate 'visitor_session_with_source' and 'visitor_session_pk' Tables with Transaction Data:
         Populate specific tables with transaction data from 'analytics_distinct' and 'transactions' tables.
 
-##Results
+## Results
 
 The project's results include various insights gained from the data analysis, such as:
 
@@ -54,12 +54,12 @@ The project's results include various insights gained from the data analysis, su
 - Analyzing overall time spent on the site over time to identify changes in user behavior across different periods.
 - Examining sales improvement over the weekend compared to weekdays.
 
-##Challenges
+## Challenges
 
 The project encountered challenges in documenting the process and keeping track of data assumptions and transformations. Adapting and revisiting the cleaning steps while answering questions added complexity.
 Future Goals
 
-##Future Goals
+## Future Goals
 The project's future goals include exploring the creation of a new id called productsaleid, focusing on productSKU details when sold, and linking productSKU with the analytics CSV. Further investigation is needed to understand the exact meaning of the "channel referral" data field.
 
 
