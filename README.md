@@ -1,67 +1,65 @@
 # Final-Project-Transforming-and-Analyzing-Data-with-SQL
 
-## Project/Goals
-Getting to know the data,
- -   what is each column likely to represent,
- -   in what context was the data likely collected
-Cleaning Data
- - Where is data missing, and where is complete
- -   finding the most important columns which do not have missing data or hard to handle values
- -   filling in empty columns, where appropriate 
- - Finding duplicates
- -   find duplicates within tables and between tables
- - Data Conversion. Convert important columns to approriate datatypes to save time when querying and increase performace
- - Creating new tables with unique identifiers similar to the northwinds demo data set
-Answering the Questions Creating New Questions
--  
 
+##Project Goals
 
-## Process
+The main objectives of this project are as follows:
 
-**Identify Entities and Relationships**:
+    Getting to know the data by understanding what each column represents and the context in which the data was collected.
+
+    Cleaning the data by addressing missing values, identifying important columns without missing data, and filling in empty columns where appropriate.
+
+    Finding and handling duplicate records within and between tables.
+
+    Converting important columns to appropriate data types for better query performance.
+
+    Creating new tables with unique identifiers similar to the Northwind demo data set.
+
+    Answering specific questions and formulating new ones based on the data analysis.
+
+##Process
+
+    Identify Entities and Relationships:
         Investigate the tables to identify unique identifiers, facts, and potential entities.
         Analyze visitid and fullvisitorid for duplicates and investigate further.
-  **Alter Data Types**:
- - Change data types for certain columns, such as converting text to VARCHAR and converting date columns to DATE.
-**Transform Data**
-- Change the time column to time_on_page (minor assumption) from milliseconds to seconds (appropriate for interval datatype) 
- **Create New Tables for Distinct Rows:**
--   Create new tables ('visitor_session' and 'visitor_session_source') to store distinct rows and related information.
 
-**Create a Transactions Table:**
-        Clean and update data in the 'all_sessions' table to populate the 'transactions' table with relevant transaction information.
- **Create a Visitor Info Table:**
-        Clean and update data in the 'all_sessions' table to populate the 'visitor_info' table with visitor information.Populate 'visitor_session_with_source' and 'visitor_session_pk' Tables with Transaction Data:
-        Populate specific tables ('visitor_session_with_source' and 'visitor_session_pk') with transaction data from 'analytics_distinct' and 'transactions' tables.
-   
-## Results
+    Alter Data Types:
+        Change data types for certain columns, such as converting text to VARCHAR and date columns to DATE.
 
- --Total Number of Unique Visitors: Determined that there are 130,345 unique visitors based on their fullVisitorID.
+    Transform Data:
+        Change the time column to time_on_page (assuming milliseconds to seconds) to use the interval datatype.
 
---Analyzed the total number of unique visitors by channel grouping, providing insights into the most common referring sites.
+    Create New Tables for Distinct Rows:
+        Create 'visitor_session' and 'visitor_session_source' tables to store distinct rows and relevant information.
 
---Unique Products Viewed by Each Visitor: Found the unique product viewed by each visitor and identified the visitor who viewed the most products.
+    Create a Transactions Table:
+        Clean and update data in the 'all_sessions' table to populate the 'transactions' table with transaction information.
 
---Percentage of Visitors Making a Purchase: Computed the percentage of visitors who made a purchase during their session on the website. The data revealed that only 3.96% of visitor sessions included a sale.
+    Create a Visitor Info Table:
+        Clean and update data in the 'all_sessions' table to populate the 'visitor_info' table with visitor information.
 
---Average Time Spent on a Page Type: Most time is spend on the review order, payment and basket pages.
+    Populate 'visitor_session_with_source' and 'visitor_session_pk' Tables with Transaction Data:
+        Populate specific tables with transaction data from 'analytics_distinct' and 'transactions' tables.
 
---Most Common Page Visitors Spend Time On: Identified the webpage users spend the most time on, providing insights into user behavior on the website.
+##Results
 
---Referral Traffic with Zero Time on Site: Analyzed the most common referral sources for users who spent zero time on the site and compared it to the general trend of referrals.
+The project's results include various insights gained from the data analysis, such as:
 
---Overall Time Spent on Site Over Time: Analyzed the overall time spent on the site over time, providing insights into changes in user behavior across different periods.
+    Determining the total number of unique visitors (130,345) based on their fullVisitorID.
+    Analyzing the total number of unique visitors by channel grouping, revealing the most common referring sites.
+    Identifying unique products viewed by each visitor and finding the visitor who viewed the most products.
+    Computing the percentage of visitors making a purchase during their session on the website (3.96%).
+    Analyzing the average time spent on specific page types and identifying the most common pages visitors spend time on.
+    Exploring referral traffic with zero time on site and comparing it to the general trend of referrals.
+    Analyzing overall time spent on the site over time to identify changes in user behavior across different periods.
+    Examining sales improvement over the weekend compared to weekdays.
 
---Improvement in Sales Over the Weekend: Examined whether there was an improvement in sales revenue over the weekend compared to weekdays. The data showed that there was a modest increase in sales revenue on weekdays compared to weekends.
+##Challenges
 
-## Challenges 
-I found the documentation process difficult. In pressing forward and answering questions, I would notice something I missed in the cleaning step and have to return to that process.
-Keeping assumptions about the data straight, and keeping what transformations I have done in front of mind. 
+The project encountered challenges in documenting the process and keeping track of data assumptions and transformations. Adapting and revisiting the cleaning steps while answering questions added complexity.
+Future Goals
 
-
-## Future Goals
--Look into creating a new id called productsaleid. that only included information of a productsku when it sold, for what price etc, what time etc. This would be seperate from the transactionid which would include information on the total sale.
--Look into if there is a way to link productsku with the analytics csv
-- Investigate further what channel referral means exactly
+##Future Goals
+The project's future goals include exploring the creation of a new id called productsaleid, focusing on productSKU details when sold, and linking productSKU with the analytics CSV. Further investigation is needed to understand the exact meaning of the "channel referral" data field.
 
 
