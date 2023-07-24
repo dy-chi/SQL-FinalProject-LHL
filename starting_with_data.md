@@ -96,7 +96,7 @@ GROUP BY
 	
 ORDER BY time_on_page DESC
 
-Answer: Shop by brand from the youtube or google path to the Google Merchandise Store is the webpage users spend the most time on 
+Answer: Shop by brand from the youtube or google path to the Google Merchandise Store is the webpage users spend the most time on, not on average, but as a total amount of time spent on the website. This is different from the answer in answer 1 because there are likley lots of short visits to these pages with short times on page
 
 "YouTube | Shop by Brand | Google Merchandise Store"	"31:50:22"	"/google+redesign/"
 "Google | Shop by Brand | Google Merchandise Store"	"29:52:14"	"/google+redesign/"
