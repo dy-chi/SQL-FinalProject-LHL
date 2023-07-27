@@ -3,16 +3,16 @@
 --  Goal 1: Identify possible entities, dimensions, facts and relationships (if any) between tables
 
 -- List of Entities  unique identifiers, facts, found after investigating the tables 
--- - fullvisitorid -> visitor 
+-- fullvisitorid -> visitor 
 
---   visitid -> likely to be a page visit, time_on_page 
--- - visitor_sessions_day_id visitor page visit -> (combination of fullvisitorid, visitid and day of month (since there seem to be duplicate rows when crossing midnight on the same visit))
+--visitid -> likely to be a page visit, time_on_page 
+--visitor_sessions_day_id visitor page visit -> (combination of fullvisitorid, visitid and day of month (since there seem to be duplicate rows when crossing midnight on the same visit))
         - channel referral
         - country, city 
--- - transactions -> transactionid 
--- - pageid -> not not created 
--- - channel referral
--- - products
+--transactions -> transactionid 
+--pageid -> not not created 
+--channel referral
+--products
         - productname
         - product price 
         - etc
