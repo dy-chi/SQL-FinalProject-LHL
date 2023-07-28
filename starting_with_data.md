@@ -115,17 +115,11 @@ SQL Queries:
 
 SELECT
     channelgrouping, -- The name of the channel grouping
-    SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END) as cg_count_time0, -- Count of sessions with time spent = 0
-    (
-        SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END)
-        / (SELECT COUNT(*) as total_rows FROM public.visitor_sessions_pk)::numeric(10,2) * 100
-    )::numeric(10,2) as cg_count_time0_percent, -- Percentage of sessions with time spent = 0
+    SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END) AS cg_count_time0, -- Count of sessions with time spent = 0
+    ((SUM(CASE WHEN timeonsite = '00:00:00' THEN 1 ELSE 0 END)::NUMERIC(10, 2) /COUNT(timeonsite)::NUMERIC(10, 2)) * 100)::NUMERIC(10, 2) AS cg_count_time0_percent, -- Percentage of sessions with time spent = 0
 
-    COUNT(timeonsite) as cg_count, -- Total count of sessions in the channel grouping
-    (
-        COUNT(timeonsite)
-        / (SELECT COUNT(*) as total_rows FROM public.visitor_sessions_pk)::numeric(10,2) * 100
-    )::numeric(10,2) as cg_count_percent -- Percentage of total sessions in the channel grouping
+    COUNT(timeonsite) AS cg_count, -- Total count of sessions in the channel grouping
+    (COUNT(timeonsite) / (SELECT COUNT(*) AS total_rows FROM public.visitor_sessions_pk)::NUMERIC(10, 2) * 100)::NUMERIC(10, 2) AS cg_count_percent -- Percentage of total sessions in the channel grouping
 FROM public.visitor_sessions_pk
 
 -- Group the results by channel grouping
@@ -134,17 +128,14 @@ GROUP BY channelgrouping
 -- Order the results by the count of sessions with time spent = 0 in descending order
 ORDER BY cg_count_time0 DESC;
 
+Answer: There is a large increase in non-zero timeonsite when channelgrouping is a referral. FROM only  7.4% of sessions with referral spent 0 time of site, whereas 59%% of visits with social referral spent 0 time on the site.  
 
-Answer: There is a large increase in non-zero timeonsite when channelgrouping is a referral. FROM only  1.4% of sessions with referral spent 0 time of site, whereas 20% of visits with organic search spent 0 time on the site. Maybe this is from web scrappers? 
-
-"Organic Search"	32967	20.41	82634	51.16
-"Direct"	8702	5.39	28116	17.41
-"Social"	7080	4.38	11810	7.31
-"Referral"	2276	1.41	30683	19.00
-"Paid Search"	474	0.29	5081	3.15
-"Display"	299	0.19	1269	0.79
-"Affiliates"	105	0.07	1912	1.18
-
+Channelgrouping time_0_count    total channel grouping count  
+"Organic Search"32967	39.90	82634	51.16
+"Direct"	8702	30.95	28116	17.41
+"Social"	7080	59.95	11810	7.31
+"Referral"	2276	7.42	30683	19.00
+"Paid Search"	474	9.33	5081	3.15
 
 
 
@@ -172,7 +163,7 @@ FROM public.analytics_distinct
 
 
 
-Question 5: In there any improvment in sales over the weekend?
+Question 5: Is there any improvment in sales over the weekend?
 
 SQL Queries:
 CREATE OR REPLACE FUNCTION is_weekend(date_val date)
