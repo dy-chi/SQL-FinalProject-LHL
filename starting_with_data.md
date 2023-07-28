@@ -140,7 +140,7 @@ Channelgrouping time_0_count    total channel grouping count
 
 
 
-Question 4: How much has the overall time spent on site changed over time?
+--Question 4: How much has the overall time spent on site changed over time?
 
 SQL Queries:
 SELECT 
@@ -151,12 +151,12 @@ SELECT
 FROM
 	public.visitor_sessions_pk
 GROUP BY TO_CHAR(date, 'YYMM')
-
+----
 FROM
 	public.visitor_sessions_pk
 GROUP BY TO_CHAR(date, 'YYMM')
-Answer: There is a huge increase in the overall time spent on site in MAY-JULY 2017, from a background of 54 hours to 
-This might be due to an error or more likey the extent of the data in the csvs we were given, this was found to be the case
+--Answer: There is a huge increase in the overall time spent on site in MAY-JULY 2017, from a background of 54 hours to 
+--This might be due to an error or more likey the extent of the data in the csvs we were given, this was found to be the case
 
 SELECT MAX(date), MIN(date)
 FROM public.analytics_distinct
